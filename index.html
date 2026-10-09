@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oli - Your city. More to do. Less to pay.</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--soft:#F2F6FB;--ink:#0A1F5C;--mute:#5A6785;--line:#DDE5F0;--card:#fff;--g:#16C172;--gd:#0E9A5A;--gt:#06301D;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0A1226;--soft:#111C38;--ink:#E9EEFF;--mute:#9AA8CC;--line:#243255;--card:#0F1830}}
+:root[data-theme="dark"]{--bg:#0A1226;--soft:#111C38;--ink:#E9EEFF;--mute:#9AA8CC;--line:#243255;--card:#0F1830}
+html{scroll-padding-top:calc(80px + env(safe-area-inset-top,0px));scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,sans-serif}
+h1,h2,h3,.hd{font-family:'Sora','DM Sans',sans-serif;color:var(--ink)}
+.view{display:none;opacity:0;transition:opacity .25s}.view.on{display:block}.view.show{opacity:1}
+.btn{background:var(--g);color:var(--gt);font-weight:700;border-radius:999px;padding:.7rem 1.4rem;transition:background .15s}.btn:hover{background:#12a862}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px}
+.chip input{position:absolute;opacity:0}.chip span{display:inline-block;padding:.6rem 1.1rem;border:1.5px solid var(--line);border-radius:999px;font-weight:500;cursor:pointer;background:var(--card)}
+.chip input:checked+span{background:var(--ink);color:var(--bg);border-color:var(--ink)}.chip input:focus-visible+span{outline:3px solid var(--g);outline-offset:2px}
+.stars{position:relative;display:inline-block;color:var(--line);letter-spacing:2px}.stars i{position:absolute;left:0;top:0;overflow:hidden;white-space:nowrap;color:#F5A623;font-style:normal}
+details{border-bottom:1px solid var(--line)}summary{cursor:pointer;font-weight:700;padding:1.1rem 0;list-style:none;display:flex;justify-content:space-between}summary::after{content:"+";color:var(--gd);font-size:1.4rem;line-height:1}details[open] summary::after{content:"–"}
+.cat{transition:transform .15s,border-color .15s}.cat:hover{transform:translateY(-3px);border-color:var(--g)}
+:focus-visible{outline:3px solid var(--g);outline-offset:3px}
+.modal{position:fixed;inset:0;background:rgba(5,12,35,.6);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}.modal.on{display:flex}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style></head>
+<body>
+<header class="sticky z-40 border-b" style="top:env(safe-area-inset-top,0px);background:var(--bg);border-color:var(--line)">
+ <div class="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
+  <button onclick="go('landing')" class="hd text-2xl font-extrabold" aria-label="Oli home">oli<span style="color:var(--g)">.</span></button>
+  <nav id="navPublic" class="flex items-center gap-4 sm:gap-7 text-sm sm:text-base font-medium">
+   <a href="#" onclick="jump('how');return false" class="hidden sm:inline">How to Use</a>
+   <a href="#" onclick="jump('qa');return false" class="hidden sm:inline">Q&amp;A</a>
+   <button class="btn" onclick="go('login')">Get Started</button></nav>
+  <nav id="navApp" class="hidden items-center gap-5 text-sm sm:text-base font-medium">
+   <button onclick="go('onboard')">Taste profile</button><button onclick="signOut()">Sign out</button></nav>
+ </div></header>
+
+<!-- PAGE 1 -->
+<main id="landing" class="view">
+ <section style="background:var(--soft)"><div class="max-w-6xl mx-auto px-5 py-16 md:py-24 grid md:grid-cols-2 gap-12 items-center">
+  <div><h1 class="text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.05]">Your city. More to do. Less to pay.</h1>
+   <p class="mt-6 text-lg max-w-lg" style="color:var(--mute)">Tell Oli what you're craving or who you're bringing. Oli reads reviews across the web, checks your taste profile, and gives you one clear pick with the dishes to order. Nothing to download. It all runs right here.</p>
+   <div class="mt-8 flex flex-wrap gap-3"><button class="btn text-lg" onclick="go('login')">Get Started</button>
+    <button class="rounded-full px-6 py-3 font-bold border-2" style="border-color:var(--ink)" onclick="jump('how')">See how it works</button></div></div>
+  <div class="card p-6 shadow-xl relative"><div class="absolute -top-4 -right-3 btn text-sm !py-1.5">Free to use</div>
+   <p class="ml-auto w-fit max-w-[90%] rounded-2xl rounded-br-sm px-4 py-3 text-white" style="background:var(--ink);color:var(--bg)">Something spicy, and the kids are coming.</p>
+   <div class="mt-3 rounded-2xl rounded-bl-sm px-4 py-3" style="background:var(--soft)"><b class="hd">Saffron &amp; Smoke</b> · 4.7 ★ · 0.8 km away<br><span style="color:var(--mute)">Adjustable heat for you, mild butter chicken for them. Try the lamb vindaloo.</span></div></div>
+ </div></section>
+ <section id="how" class="max-w-6xl mx-auto px-5 py-20"><h2 class="text-3xl md:text-4xl font-extrabold mb-10">How to use Oli</h2>
+  <div class="grid md:grid-cols-3 gap-5">
+   <div class="card p-7"><div class="w-10 h-10 rounded-full grid place-items-center font-bold mb-4" style="background:var(--g);color:var(--gt)">1</div><h3 class="text-xl font-bold mb-2">Build your taste profile</h3><p style="color:var(--mute)">Choose your tastes, dietary needs and family requirements once.</p></div>
+   <div class="card p-7"><div class="w-10 h-10 rounded-full grid place-items-center font-bold mb-4" style="background:var(--g);color:var(--gt)">2</div><h3 class="text-xl font-bold mb-2">Ask in your own words</h3><p style="color:var(--mute)">Type a venue name or a mood, like "romantic dinner" or "a place for the kids".</p></div>
+   <div class="card p-7"><div class="w-10 h-10 rounded-full grid place-items-center font-bold mb-4" style="background:var(--g);color:var(--gt)">3</div><h3 class="text-xl font-bold mb-2">Get a clear answer</h3><p style="color:var(--mute)">See rating, distance, an honest review summary and the best dishes.</p></div></div></section>
+ <section id="qa" style="background:var(--soft)"><div class="max-w-3xl mx-auto px-5 py-20"><h2 class="text-3xl md:text-4xl font-extrabold mb-6">Q&amp;A</h2>
+  <details><summary>Do I need to download an app?</summary><p class="pb-5" style="color:var(--mute)">No. Oli works in your browser on any phone or computer.</p></details>
+  <details><summary>How does Oli use my taste profile?</summary><p class="pb-5" style="color:var(--mute)">Every search is cross-checked against your saved tastes, dietary profile and family needs, so results and dishes fit you.</p></details>
+  <details><summary>Where do the ratings come from?</summary><p class="pb-5" style="color:var(--mute)">Oli combines scores from several review platforms into one number out of 5. In this prototype the figures are simulated.</p></details>
+  <details><summary>Can I search for any restaurant name?</summary><p class="pb-5" style="color:var(--mute)">Yes. Type any name and Oli builds a tailored result for it.</p></details>
+ </div></section>
+ <footer class="py-8 text-center text-sm" style="color:var(--mute)">Oli prototype · simulated data</footer>
+</main>
+
+<!-- PAGE 2 -->
+<main id="login" class="view"><div class="max-w-md mx-auto px-5 py-16">
+ <form id="loginForm" class="card p-8 shadow-xl"><h1 class="text-3xl font-extrabold">Sign in to Oli</h1><p class="mt-2 mb-6" style="color:var(--mute)">New here? Signing in creates your account.</p>
+  <label class="block font-bold mb-1" for="em">Email</label>
+  <input id="em" type="email" required autocomplete="email" class="w-full rounded-xl border px-4 py-3 mb-4" style="background:var(--bg);border-color:var(--line);color:var(--ink)">
+  <label class="block font-bold mb-1" for="pw">Password</label>
+  <input id="pw" type="password" required minlength="6" autocomplete="current-password" class="w-full rounded-xl border px-4 py-3 mb-6" style="background:var(--bg);border-color:var(--line);color:var(--ink)">
+  <button class="btn w-full text-lg">Sign In</button></form></div></main>
+
+<main id="onboard" class="view"><div class="max-w-3xl mx-auto px-5 py-12">
+ <h1 class="text-3xl md:text-4xl font-extrabold">Build your taste profile</h1><p class="mt-2 mb-8" style="color:var(--mute)">Oli uses this on every search. Pick anything that applies.</p>
+ <form id="tasteForm" class="card p-7 md:p-9 space-y-8">
+  <fieldset><legend class="hd text-lg font-bold mb-3">Personal tastes</legend><div class="flex flex-wrap gap-2.5" id="g-tastes"></div></fieldset>
+  <fieldset><legend class="hd text-lg font-bold mb-3">Dietary profile</legend><div class="flex flex-wrap gap-2.5" id="g-diet"></div></fieldset>
+  <fieldset><legend class="hd text-lg font-bold mb-3">Family requirements</legend><div class="flex flex-wrap gap-2.5" id="g-family"></div></fieldset>
+  <button class="btn text-lg">Save &amp; Continue</button></form></div></main>
+
+<!-- PAGE 3 -->
+<main id="hub" class="view"><div class="max-w-4xl mx-auto px-5 pt-12 pb-20">
+ <h1 class="text-3xl md:text-5xl font-extrabold text-center">What are you in the mood for?</h1>
+ <form id="searchForm" class="mt-8 flex items-center rounded-full border-2 pl-6 pr-2 py-2 shadow-lg" style="background:var(--card);border-color:var(--line)">
+  <input id="q" autocomplete="off" aria-label="Search" placeholder="Find a restaurant or ask Oli for help..." class="flex-1 min-w-0 bg-transparent outline-none text-lg md:text-xl py-3" style="color:var(--ink)">
+  <button class="btn text-lg">Search</button></form>
+ <p id="profileLine" class="mt-3 text-center text-sm" style="color:var(--mute)"></p>
+ <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-10" id="cats"></div>
+ <div id="results" class="mt-12" aria-live="polite"></div></div></main>
+
+<div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="mt"><div class="card p-8 max-w-md w-full" style="background:var(--card)">
+ <h2 id="mt" class="text-2xl font-extrabold">Allow Oli to access your data?</h2>
+ <p class="mt-3" style="color:var(--mute)">Oli would like to use your taste profile and approximate location to personalise results. You can change this any time.</p>
+ <div class="mt-6 flex gap-3"><button class="btn flex-1" id="allow">Allow</button><button class="flex-1 rounded-full border-2 font-bold" style="border-color:var(--line)" onclick="document.getElementById('modal').classList.remove('on')">Not now</button></div></div></div>
+
+<script>
+const state={email:'',profile:{tastes:[],diet:[],family:[]}};
+const $=s=>document.querySelector(s), esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function go(id){const cur=document.querySelector('.view.on');const show=()=>{document.querySelectorAll('.view').forEach(v=>v.classList.remove('on','show'));const el=$('#'+id);el.classList.add('on');requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('show')));window.scrollTo(0,0);
+ const inApp=id==='onboard'||id==='hub';$('#navPublic').classList.toggle('hidden',inApp);$('#navApp').classList.toggle('hidden',!inApp);$('#navApp').classList.toggle('flex',inApp);if(id==='hub')refreshProfileLine();};
+ if(cur){cur.classList.remove('show');setTimeout(show,200)}else show();}
+function jump(id){if(!$('#landing').classList.contains('on')){go('landing');setTimeout(()=>$('#'+id).scrollIntoView(),400)}else $('#'+id).scrollIntoView()}
+function signOut(){state.email='';state.profile={tastes:[],diet:[],family:[]};$('#results').innerHTML='';$('#q').value='';go('landing')}
+
+// chips
+const OPTS={tastes:['Spicy','Savory','Sweet','Adventurous'],diet:['Halal','Vegetarian','None'],family:['Kid-Friendly','High Chairs','Quiet Space']};
+const GROUP={tastes:'#g-tastes',diet:'#g-diet',family:'#g-family'};
+for(const k in OPTS)$(GROUP[k]).innerHTML=OPTS[k].map(o=>`<label class="chip"><input type="checkbox" name="${k}" value="${o}"><span>${o}</span></label>`).join('');
+$('#g-diet').addEventListener('change',e=>{const boxes=[...document.querySelectorAll('#g-diet input')];
+ if(e.target.value==='None'&&e.target.checked)boxes.forEach(b=>{if(b.value!=='None')b.checked=false});
+ else if(e.target.checked)boxes.find(b=>b.value==='None').checked=false});
+
+// sign in -> permission -> onboarding
+$('#loginForm').addEventListener('submit',e=>{e.preventDefault();state.email=$('#em').value;$('#modal').classList.add('on');$('#allow').focus()});
+$('#allow').onclick=()=>{$('#modal').classList.remove('on');go('onboard')};
+$('#tasteForm').addEventListener('submit',e=>{e.preventDefault();
+ for(const k in OPTS)state.profile[k]=[...document.querySelectorAll(`input[name=${k}]:checked`)].map(i=>i.value);
+ go('hub')});
+function refreshProfileLine(){const p=state.profile,all=[...p.tastes,...p.diet.filter(d=>d!=='None'),...p.family];
+ $('#profileLine').textContent=all.length?'Oli is using your profile: '+all.join(', '):'No taste profile saved. Results will be general.'}
+
+// categories
+const CATS=[['🍽️','Dining','Best dinner spot for tonight'],['🏨','Hotels','Family friendly hotel with a pool'],['🛍️','Shopping Centres','Shopping centre with a great food court'],['🍸','Bars','Relaxed bar with great cocktails'],['🎟️','Activities','Fun weekend activity with good food nearby'],['🔥','Trending Nearby','What is trending nearby right now']];
+$('#cats').innerHTML=CATS.map((c,i)=>`<button type="button" data-p="${c[2]}" class="cat card p-6 text-left ${i===5?'!border-0':''}" ${i===5?'style="background:var(--g)"':''}><div class="text-3xl mb-3">${c[0]}</div><div class="hd font-bold text-lg" ${i===5?'style="color:var(--gt)"':''}>${c[1]}</div></button>`).join('');
+$('#cats').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;$('#q').value=b.dataset.p;$('#q').focus()});
+
+// ---------- OLI engine ----------
+const MEAT=/lamb|chicken|beef|rib|prawn|scallop|fish|oyster|steak|burger|slider|pork|tuna|salmon|sushi|calamari|bacon|brisket|octopus|duck/i, PORK=/pork|bacon|wine/i;
+const T={
+ spicy:{kw:['spicy','hot','chilli','chili','fiery','heat','curry','sichuan','kick'],say:'the heat levels, with plenty of dishes that bring a proper kick',names:['Ember & Chilli','Fire Lane Kitchen','Smoke Pepper Co.'],dishes:['Chilli-crusted lamb ribs','Sichuan dan dan noodles','Fiery paneer tikka','Jalapeño popper tacos','Nashville hot chicken','Mapo tofu']},
+ kids:{kw:['kid','kids','child','children','family','toddler','baby'],say:'how welcoming the staff are to families, with mild options and fast service',names:['Little Fork','Sunny Table','Happy Spoon Eatery'],dishes:['Mini margherita pizzas','Cheesy mac bites','Chicken tenders and chips','Build-your-own sliders','Fruit and yoghurt cups']},
+ romantic:{kw:['romantic','date','anniversary','candle','intimate','quiet','cosy','cozy'],say:'the soft lighting and well-spaced tables that make conversation easy',names:['Velvet Fig','The Candlelight Room','Olive & Ember'],dishes:['Seared scallops with citrus butter','Truffle mushroom risotto','Slow-braised short rib','Burrata with roasted figs','Molten chocolate for two']},
+ sweet:{kw:['sweet','dessert','cake','ice','chocolate','donut','pastry','gelato'],say:'the desserts, which are consistently named the highlight',names:['Sugar & Spoon','The Dessert Atelier','Honeycomb Bakery'],dishes:['Salted caramel churros','Pistachio gelato flight','Warm sticky date pudding','Basque cheesecake','Mango sticky rice']},
+ veg:{kw:['vegetarian','vegan','veggie','plant'],say:'the creative plant-based menu that even meat-eaters rave about',names:['Green Table','Root & Leaf','The Veggie Patch'],dishes:['Roasted cauliflower with tahini','Wild mushroom bao','Halloumi and zucchini fritters','Chickpea and spinach curry','Smoky eggplant dip']},
+ halal:{kw:['halal'],say:'the fully halal-certified kitchen',names:['Al Noor Kitchen','Saffron House','Zaytoun Grill'],dishes:['Lamb mandi with saffron rice','Chicken shawarma plate','Hummus with warm flatbread','Beef kofta skewers','Kunafa with pistachio']},
+ seafood:{kw:['seafood','fish','sushi','oyster','prawn','japanese'],say:'the freshness of the catch, delivered daily',names:['Harbour & Tide','Blue Fin Kitchen','The Salt Pier'],dishes:['Fresh oysters with mignonette','Salt and pepper calamari','Salmon sashimi plate','Garlic butter prawns','Miso-glazed barramundi']},
+ italian:{kw:['italian','pizza','pasta'],say:'the hand-made pasta and wood-fired pizza',names:['Nonna Rosa','Forno & Fig','Trattoria Bella'],dishes:['Wood-fired margherita','Cacio e pepe','Gnocchi al pomodoro','Tiramisu','Arancini with mozzarella']},
+ coffee:{kw:['coffee','cafe','brunch','breakfast'],say:'the specialty coffee and all-day brunch menu',names:['Daily Grind Social','Sunday Bean','Crumb & Co.'],dishes:['Smashed avocado on sourdough','Ricotta hotcakes','Shakshuka with feta','Flat white and almond croissant']},
+ bbq:{kw:['bbq','barbecue','grill','steak','burger','savory','savoury'],say:'the slow-smoked meats and big, hearty portions',names:['Cinder & Salt','Harbour Smokehouse','The Grill Yard'],dishes:['14-hour smoked brisket','Dry-aged cheeseburger','Charred corn with chipotle butter','Smoked pork ribs','Loaded sweet potato fries']},
+ cheap:{kw:['cheap','budget','affordable','deal','value','under'],say:'generous portions at fair prices',names:['The Good Plate','Fork & Value','Neighbourhood Kitchen'],dishes:['Lunch combo with a drink','Loaded rice bowl','Wood-fired pizza slice deal','Dumpling basket for sharing']},
+ adventure:{kw:['adventurous','unusual','weird','new','surprise'],say:'the inventive, ever-changing tasting menu',names:['Curio Kitchen','The Wild Spoon','Odd Fellow Dining'],dishes:['Chef\'s surprise tasting plate','Miso caramel octopus','Fermented chilli wings','Black garlic gnocchi','Smoked eel toast']}};
+const TYPES={hotel:{kw:['hotel','stay','resort','suite','accommodation'],suffix:['Hotel','Suites','Lodge'],note:'the on-site restaurant',dishes:['Breakfast buffet with live omelette station','Poolside club sandwich','Rooftop grazing platter','Room-service pancakes']},
+ mall:{kw:['shopping','mall','centre','center','shops'],suffix:['Central','Arcade','Quarter'],note:'the food court',dishes:['Gourmet dumplings from the food hall','Loaded ramen bowl','Artisan gelato cone','Bubble tea and a bao bun']},
+ bar:{kw:['bar','cocktail','pub','drinks','beer'],suffix:['Bar','Taproom','Cocktail Club'],note:'the bar menu',dishes:['Truffle fries','Smoky old fashioned','Sticky chicken wings','Cheese and charcuterie board']},
+ act:{kw:['activity','activities','weekend','tour','fun','things'],suffix:['Adventure Park','Experience','Collective'],note:'the café nearby',dishes:['Picnic hamper for two','Post-activity burger and shake','Fresh juice and fruit cups','Wood-fired pizza to share']}};
+const ADJ=['Golden','Corner','Harbour','Laneway','Little','Rosewood','Sunset','Copper'];
+const TASTE_MAP={Spicy:'spicy',Savory:'bbq',Sweet:'sweet',Adventurous:'adventure'};
+const hash=s=>{let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0};
+const rng=seed=>()=>{seed=(seed+0x6D2B79F5)|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const words=q=>q.toLowerCase().match(/[a-z']+/g)||[];
+const hit=(ws,kws)=>ws.some(w=>kws.some(k=>w.startsWith(k)));
+const list=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1];
+const title=s=>s.replace(/\b\w/g,c=>c.toUpperCase());
+
+function oli(query,profile,ordinal){
+ const R=rng(hash(query.toLowerCase()+ordinal)), pick=a=>a[Math.floor(R()*a.length)], shuffle=a=>a.map(v=>[R(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+ const ws=words(query), qThemes=Object.keys(T).filter(k=>hit(ws,T[k].kw));
+ const type=Object.keys(TYPES).find(k=>hit(ws,TYPES[k].kw)), trending=/trend|popular|right now|nearby/.test(query.toLowerCase());
+ const diet=profile.diet.filter(d=>d!=='None'), vegProfile=diet.includes('Vegetarian')||qThemes.includes('veg'), halal=diet.includes('Halal')||qThemes.includes('halal');
+ const pThemes=profile.tastes.map(t=>TASTE_MAP[t]).filter(t=>t&&!qThemes.includes(t));
+ const themes=[...qThemes,...pThemes];
+ const looksNamed=!qThemes.length&&!type&&ws.length>0&&ws.length<=4&&!trending;
+ // name
+ const lead=themes[0]&&T[themes[0]];
+ let name; if(ordinal===0&&looksNamed)name=title(query.trim());
+ else if(type)name=pick(ADJ)+' '+pick(TYPES[type].suffix);
+ else name=lead&&R()>.3?pick(lead.names):pick(ADJ)+' '+pick(['Kitchen','Table','Bistro','Eatery']);
+ // dishes
+ let pool=type?[...TYPES[type].dishes]:[];
+ shuffle(themes).forEach(k=>pool.push(...shuffle(T[k].dishes).slice(0,3)));
+ if(!pool.length)pool=shuffle(['Chef\'s special of the day','Seasonal market salad','Wood-fired flatbread','Slow-roasted vegetables','House-made dessert']);
+ if(vegProfile)pool=pool.filter(d=>!MEAT.test(d));
+ if(halal)pool=pool.filter(d=>!PORK.test(d));
+ if(vegProfile&&pool.length<3)pool.push(...shuffle(T.veg.dishes));
+ let dishes=[...new Set(pool)].slice(0,4);
+ if(profile.family.includes('Kid-Friendly')&&!qThemes.includes('kids'))dishes[dishes.length-1]='Kids\' pick: '+pick(T.kids.dishes.filter(d=>!vegProfile||!MEAT.test(d)));
+ if(profile.tastes.includes('Sweet')&&!qThemes.includes('sweet'))dishes.push(pick(T.sweet.dishes));
+ dishes=[...new Set(dishes)];
+ // rating + distance
+ const rating=Math.round((3.9+R()*1.0)*10)/10, dist=(0.3+R()*2.4+ordinal*1.3).toFixed(1), n=Math.floor(180+R()*2400);
+ // summary
+ const kwText=query.trim()?`“${query.trim()}”`:'your request';
+ const parts=[`Oli scanned ${n.toLocaleString()} reviews across Google, TripAdvisor and Yelp for ${kwText}.`];
+ if(type)parts.push(`Guests mention ${TYPES[type].note} often, and rate it above the local average.`);
+ if(lead)parts.push(`Reviewers keep coming back to ${lead.say}.`);
+ else parts.push(pick(['Reviewers praise the friendly service and consistent quality.','Most reviews highlight good value and a relaxed atmosphere.']));
+ if(looksNamed&&ordinal===0)parts.push(`Reviews for ${name} are mostly recent, with a steady trend of ${rating>=4.4?'strong':'solid'} feedback.`);
+ const fit=[];
+ if(profile.tastes.length)fit.push(`you enjoy ${list(profile.tastes.map(t=>t.toLowerCase()))} flavours`);
+ if(diet.length)fit.push(`your ${list(diet.map(d=>d.toLowerCase()))} requirement is covered with clearly marked options`);
+ if(profile.family.includes('Kid-Friendly'))fit.push('it welcomes kids');
+ if(profile.family.includes('High Chairs'))fit.push('high chairs are available');
+ if(profile.family.includes('Quiet Space'))fit.push('there is a calmer area away from the noise');
+ if(fit.length)parts.push('It suits your taste profile because '+list(fit)+'.');
+ if(trending)parts.push(`It is trending nearby, with saves up ${Math.floor(20+R()*90)}% this week.`);
+ return{name,rating,dist,summary:parts.join(' '),dishes,type};
+}
+const stars=r=>`<span class="stars text-xl" aria-hidden="true">★★★★★<i style="width:${r/5*100}%">★★★★★</i></span>`;
+function render(query){
+ const q=query.trim(),box=$('#results');
+ box.innerHTML=`<div class="card p-8 text-center" style="color:var(--mute)"><p class="hd font-bold text-lg" style="color:var(--ink)">Oli is on it…</p><p id="tick" class="mt-1">Reading reviews across the web</p></div>`;
+ const steps=['Checking your taste profile','Comparing ratings','Writing your summary'];let i=0;
+ const t=setInterval(()=>{const el=$('#tick');if(el&&i<steps.length)el.textContent=steps[i++]},350);
+ setTimeout(()=>{clearInterval(t);const out=[0,1,2].map(i=>oli(q,state.profile,i)).sort((a,b)=>a.dist-b.dist||0);
+  const first=out.find((_,i)=>true);
+  box.innerHTML=`<p class="mb-5 text-lg"><b class="hd">Oli:</b> Here are my top picks for ${q?'“'+esc(q)+'”':'you'}.</p>`+out.map((r,i)=>`
+  <article class="card p-6 md:p-8 mb-5 ${i===0?'border-2':''}" style="${i===0?'border-color:var(--g)':''}">
+   <h2 class="text-2xl md:text-3xl font-extrabold">${esc(r.name)}</h2>
+   <div class="flex flex-wrap items-center gap-x-5 gap-y-1 mt-2" style="color:var(--mute)">${stars(r.rating)}<span><b style="color:var(--ink)">${r.rating}</b> / 5 combined</span><span>${r.dist} km away</span></div>
+   <div class="mt-5 rounded-2xl p-5" style="background:var(--soft)"><h3 class="font-bold mb-1" style="color:var(--gd)">Oli's review summary</h3><p>${esc(r.summary)}</p></div>
+   <h3 class="font-bold mt-5 mb-2">Best dishes for you</h3><ul class="list-disc pl-6 space-y-1">${r.dishes.map(d=>`<li>${esc(d)}</li>`).join('')}</ul></article>`).join('');
+  box.scrollIntoView({behavior:'smooth',block:'start'})},1150);
+}
+$('#searchForm').addEventListener('submit',e=>{e.preventDefault();render($('#q').value)});
+go('landing');
+</script></body></html>
