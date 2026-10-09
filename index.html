@@ -86,10 +86,7 @@ details{border-bottom:1px solid var(--line)}summary{cursor:pointer;font-weight:7
    <div class="card p-7"><div class="w-10 h-10 rounded-full grid place-items-center font-bold mb-4" style="background:var(--g);color:var(--gt)">2</div><h3 class="text-xl font-bold mb-2">Ask in your own words</h3><p style="color:var(--mute)">Type a venue name or a mood, like "romantic dinner" or "a place for the kids".</p></div>
    <div class="card p-7"><div class="w-10 h-10 rounded-full grid place-items-center font-bold mb-4" style="background:var(--g);color:var(--gt)">3</div><h3 class="text-xl font-bold mb-2">Get a clear answer</h3><p style="color:var(--mute)">See rating, distance, an honest review summary and the best dishes.</p></div></div></section>
  <section id="qa" style="background:var(--soft)"><div class="max-w-3xl mx-auto px-5 py-20"><h2 class="text-3xl md:text-4xl font-extrabold mb-6">Q&amp;A</h2>
-  <details><summary>Do I need to download an app?</summary><p class="pb-5" style="color:var(--mute)">No. Oli works in your browser on any phone or computer.</p></details>
-  <details><summary>How does Oli use my taste profile?</summary><p class="pb-5" style="color:var(--mute)">Every search is cross-checked against your saved tastes, dietary profile and family needs, so results and dishes fit you.</p></details>
-  <details><summary>Where do the ratings come from?</summary><p class="pb-5" style="color:var(--mute)">Oli combines scores from several review platforms into one number out of 5. In this prototype the figures are simulated.</p></details>
-  <details><summary>Can I search for any restaurant name?</summary><p class="pb-5" style="color:var(--mute)">Yes. Type any name and Oli builds a tailored result for it.</p></details>
+  <div id="qaList"></div>
  </div></section>
  <footer class="py-8 text-center text-sm" style="color:var(--mute)">Oli prototype · simulated data</footer>
 </main>
@@ -129,7 +126,7 @@ function go(id){const cur=document.querySelector('.view.on');const show=()=>{doc
  const inApp=id==='onboard'||id==='hub';$('#navPublic').classList.toggle('hidden',inApp);$('#navApp').classList.toggle('hidden',!inApp);$('#navApp').classList.toggle('flex',inApp);if(id==='hub')refreshProfileLine();};
  if(cur){cur.classList.remove('show');setTimeout(show,200)}else show();}
 function jump(id){if(!$('#landing').classList.contains('on')){go('landing');setTimeout(()=>$('#'+id).scrollIntoView(),400)}else $('#'+id).scrollIntoView()}
-async function signOut(){await window.googleSignOut();state.user=null;state.profile={tastes:[],diet:[],family:[]};$('#whoami').textContent='';$('#results').innerHTML='';$('#q').value='';go('landing')}
+async function signOut(){if(window.googleSignOut)await window.googleSignOut();state.user=null;state.profile={tastes:[],diet:[],family:[]};$('#whoami').textContent='';$('#results').innerHTML='';$('#q').value='';go('landing')}
 function start(){go(state.user?'onboard':'login')}
 
 // chips
@@ -147,13 +144,26 @@ window.oliSetUser=(u,fromClick)=>{
  $('#whoami').textContent=state.user?(state.user.name.split(' ')[0]||state.user.email):'';
  if(u&&fromClick)go('onboard');
 };
-window.oliAuthError=m=>{$('#authErr').textContent=m};
-async function signInClick(){const b=$('#gbtn');b.disabled=true;$('#authErr').textContent='';try{await window.googleSignIn()}finally{b.disabled=false}}
+window.oliAuthError=m=>{const demo=/configured|could not load/.test(m);$('#authErr').innerHTML=esc(m)+(demo?' <button type="button" onclick="demoMode()" class="font-bold underline" style="color:var(--gd)">Continue in demo mode</button>':'')};
+function demoMode(){state.user={uid:'demo',name:'Guest',email:'',photo:''};$('#whoami').textContent='Guest';$('#authErr').textContent='';go('onboard')}
+async function signInClick(){const b=$('#gbtn');b.disabled=true;$('#authErr').textContent='';try{if(typeof window.googleSignIn!=='function')window.oliAuthError('Firebase could not load in this environment.');else await window.googleSignIn()}finally{b.disabled=false}}
 $('#tasteForm').addEventListener('submit',e=>{e.preventDefault();
  for(const k in OPTS)state.profile[k]=[...document.querySelectorAll(`input[name=${k}]:checked`)].map(i=>i.value);
  go('hub')});
 function refreshProfileLine(){const p=state.profile,all=[...p.tastes,...p.diet.filter(d=>d!=='None'),...p.family];
  $('#profileLine').textContent=all.length?'Oli is using your profile: '+all.join(', '):'No taste profile saved. Results will be general.'}
+
+
+// ---------- Q&A (short + long answers) ----------
+const QA=[
+['Do I need to download an app?','No. Oli works in your browser on any phone or computer.','Oli is a plain web page built with HTML, CSS and JavaScript, so nothing is installed from an app store. It runs in any modern browser (Chrome, Safari, Edge, Firefox) and you always load the latest version when you open the site. You can pin it to your home screen like an app. An internet connection is needed for Google sign-in and for opening the source links.'],
+['How does Oli use my taste profile?','Every search is cross-checked against your saved tastes, dietary profile and family needs, so results and dishes fit you.','Your profile is a small structured object: tastes, dietary needs and family requirements. On each search Oli reads the keywords you typed and merges them with that profile. Dietary needs act as hard filters (Vegetarian removes meat dishes, Halal removes pork dishes). Tastes add ranking weight and extra dishes. Family needs such as Kid-Friendly, High Chairs and Quiet Space are written into the review summary. If your words and your profile conflict, what you typed wins. In this prototype the profile lives in browser memory only and is cleared on refresh or sign-out.'],
+['Where do the ratings come from?','Oli combines scores from several review platforms into one number out of 5. In this prototype the figures are simulated.','The intended design pulls the score from each platform (for example Google Maps, Yelp and TripAdvisor), converts them all to a 5-star scale, then takes a weighted average. Weights reflect review volume and recency, so 4.5 stars from 2,000 recent reviews counts for more than 4.8 from 12 old ones. The single combined number and the review count are shown on every card. In this prototype the ratings are generated for demonstration, while the Sources links open real searches on those platforms.'],
+['Can I search for any restaurant name?','Yes. Type any name and Oli builds a tailored result for it.','If your text has no recognised mood or category keywords and is four words or fewer, Oli treats it as a venue name and builds the first result around it. If it contains keywords such as "spicy", "romantic" or "kids", Oli returns category-style picks instead. In this prototype the venue details are generated, so use the Sources links to check the real listing for any place.'],
+['How is my data kept safe?','Sign-in is handled by Google through Firebase, so Oli never sees or stores your password.','Authentication uses Firebase Authentication with a Google popup. Oli receives only your name, email, photo and a unique ID, never your Google password. Your taste profile is held in browser memory in this prototype and is not sent to any server. A production version would store it in a database with per-user security rules, encrypt it in transit (HTTPS) and at rest, and include a "delete my data" option. Signing out clears the session and the profile from the page.'],
+['How accurate are Oli\'s reviews?','Oli\'s summaries reflect patterns across many reviews, but they can be wrong, so treat them as a guide and check the linked sources.','A summary blends three things: the combined rating, themes that recur across reviews, and what you asked for. It has limits. Reviews lag behind reality when menus or owners change, small samples can mislead, and people who post reviews tend to be unusually happy or unhappy. Oli therefore shows the review count and links the original platforms so you can verify. In this prototype the numbers and summaries are simulated for demonstration.'],
+['How does Oli filter out fake reviews?','Oli looks for unnatural patterns, such as sudden bursts of five-star reviews, and gives those less weight.','The planned approach scores each review on trust signals: bursts of reviews in a short window, accounts with a single review or reviews across unrelated cities, near-duplicate wording, extreme ratings with no detail, and text that does not match the star score. Suspicious reviews are down-weighted rather than deleted, and the platforms\' own moderation applies first. No filter is perfect, so a few fakes can slip through. This prototype does not process real reviews, so the filtering is a design description only.']];
+$('#qaList').innerHTML=QA.map(([q,sh,lg])=>`<details><summary>${q}</summary><div class="pb-5" style="color:var(--mute)"><p><b style="color:var(--ink)">Short Answer:</b> ${sh}</p><div class="mt-3 rounded-xl p-4 border-l-4 text-[.95rem] leading-relaxed" style="background:var(--card);border-color:var(--g)"><p><b style="color:var(--ink)">Long Answer:</b> ${lg}</p></div></div></details>`).join('');
 
 // categories
 const CATS=[['🍽️','Dining','Best dinner spot for tonight'],['🏨','Hotels','Family friendly hotel with a pool'],['🛍️','Shopping Centres','Shopping centre with a great food court'],['🍸','Bars','Relaxed bar with great cocktails'],['🎟️','Activities','Fun weekend activity with good food nearby'],['🔥','Trending Nearby','What is trending nearby right now']];
@@ -214,9 +224,13 @@ function oli(query,profile,ordinal){
  dishes=[...new Set(dishes)];
  // rating + distance
  const rating=Math.round((3.9+R()*1.0)*10)/10, dist=(0.3+R()*2.4+ordinal*1.3).toFixed(1), n=Math.floor(180+R()*2400);
+ // sources (links open real searches on each platform)
+ const term=(ordinal===0&&looksNamed)?name:(query.trim()||name), e=encodeURIComponent(term);
+ const SRC={gm:['Google Maps','google.com',`https://www.google.com/maps/search/?api=1&query=${e}`],yelp:['Yelp','yelp.com',`https://www.yelp.com/search?find_desc=${e}`],ta:['TripAdvisor','tripadvisor.com',`https://www.tripadvisor.com/Search?q=${e}`],bk:['Booking.com','booking.com',`https://www.booking.com/searchresults.html?ss=${e}`],ut:['Untappd','untappd.com',`https://untappd.com/search?q=${e}`],vi:['Viator','viator.com',`https://www.viator.com/searchResults/all?text=${e}`],rd:['Reddit','reddit.com',`https://www.reddit.com/search/?q=${e}`]};
+ const src=(type==='hotel'?['gm','bk','ta']:type==='bar'?['gm','yelp','ut']:type==='act'?['gm','ta','vi']:trending?['gm','yelp','rd']:['gm','yelp','ta']).map(k=>SRC[k]);
  // summary
  const kwText=query.trim()?`“${query.trim()}”`:'your request';
- const parts=[`Oli scanned ${n.toLocaleString()} reviews across Google, TripAdvisor and Yelp for ${kwText}.`];
+ const parts=[`Oli scanned ${n.toLocaleString()} reviews across ${list(src.map(x=>x[0]))} for ${kwText}.`];
  if(type)parts.push(`Guests mention ${TYPES[type].note} often, and rate it above the local average.`);
  if(lead)parts.push(`Reviewers keep coming back to ${lead.say}.`);
  else parts.push(pick(['Reviewers praise the friendly service and consistent quality.','Most reviews highlight good value and a relaxed atmosphere.']));
@@ -229,13 +243,13 @@ function oli(query,profile,ordinal){
  if(profile.family.includes('Quiet Space'))fit.push('there is a calmer area away from the noise');
  if(fit.length)parts.push('It suits your taste profile because '+list(fit)+'.');
  if(trending)parts.push(`It is trending nearby, with saves up ${Math.floor(20+R()*90)}% this week.`);
- return{name,rating,dist,summary:parts.join(' '),dishes,type};
+ return{name,rating,dist,summary:parts.join(' '),dishes,type,src};
 }
 const stars=r=>`<span class="stars text-xl" aria-hidden="true">★★★★★<i style="width:${r/5*100}%">★★★★★</i></span>`;
 function render(query){
  const q=query.trim(),box=$('#results');
  box.innerHTML=`<div class="card p-8 text-center" style="color:var(--mute)"><p class="hd font-bold text-lg" style="color:var(--ink)">Oli is on it…</p><p id="tick" class="mt-1">Reading reviews across the web</p></div>`;
- const steps=['Checking your taste profile','Comparing ratings','Writing your summary'];let i=0;
+ const steps=['Searching Google Maps, Yelp and TripAdvisor','Checking your taste profile','Writing your summary'];let i=0;
  const t=setInterval(()=>{const el=$('#tick');if(el&&i<steps.length)el.textContent=steps[i++]},350);
  setTimeout(()=>{clearInterval(t);const out=[0,1,2].map(i=>oli(q,state.profile,i)).sort((a,b)=>a.dist-b.dist||0);
   const first=out.find((_,i)=>true);
@@ -244,7 +258,8 @@ function render(query){
    <h2 class="text-2xl md:text-3xl font-extrabold">${esc(r.name)}</h2>
    <div class="flex flex-wrap items-center gap-x-5 gap-y-1 mt-2" style="color:var(--mute)">${stars(r.rating)}<span><b style="color:var(--ink)">${r.rating}</b> / 5 combined</span><span>${r.dist} km away</span></div>
    <div class="mt-5 rounded-2xl p-5" style="background:var(--soft)"><h3 class="font-bold mb-1" style="color:var(--gd)">Oli's review summary</h3><p>${esc(r.summary)}</p></div>
-   <h3 class="font-bold mt-5 mb-2">Best dishes for you</h3><ul class="list-disc pl-6 space-y-1">${r.dishes.map(d=>`<li>${esc(d)}</li>`).join('')}</ul></article>`).join('');
+   <h3 class="font-bold mt-5 mb-2">Best dishes for you</h3><ul class="list-disc pl-6 space-y-1">${r.dishes.map(d=>`<li>${esc(d)}</li>`).join('')}</ul>
+   <div class="mt-6 pt-4 border-t text-sm flex flex-wrap items-center gap-x-2 gap-y-1" style="border-color:var(--line);color:var(--mute)"><span class="font-bold" style="color:var(--ink)">Sources gathered from:</span>${r.src.map(x=>`<a href="${x[2]}" target="_blank" rel="noopener noreferrer" class="font-medium underline underline-offset-2 decoration-2" style="color:var(--gd);text-decoration-color:var(--g)">${x[0]} (${x[1]})</a>`).join('<span aria-hidden="true">|</span>')}</div></article>`).join('');
   box.scrollIntoView({behavior:'smooth',block:'start'})},1150);
 }
 $('#searchForm').addEventListener('submit',e=>{e.preventDefault();render($('#q').value)});
