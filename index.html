@@ -25,14 +25,14 @@ if (configured) {
 }
 
 window.googleSignIn = async () => {
-  if (!configured) { window.oliAuthError("Firebase isn't configured yet. Paste your keys into firebaseConfig in this file."); return; }
+  if (!configured) { window.oliAuthError("Firebase isn't configured yet. Paste your keys into firebaseConfig in this file. If you are a user and see this, please send an email to Oliverzhao17@gmail.com"); return; }
   try {
     const result = await signInWithPopup(auth, provider);
     window.oliSetUser(result.user, true);
   } catch (err) {
     if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") return;
     window.oliAuthError(err.code === "auth/unauthorized-domain"
-      ? "This domain isn't authorised in Firebase. Add it under Authentication > Settings > Authorized domains."
+      ? "This domain isn't authorised in Firebase. Add it under Authentication > Settings > Authorized domains. If you are a user and see this, please send an email to Oliverzhao17@gmail.com"
       : "Sign-in failed (" + (err.code || err.message) + "). Please try again.");
   }
 };
