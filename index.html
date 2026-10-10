@@ -120,6 +120,13 @@ details{border-bottom:1px solid var(--line)}summary{cursor:pointer;font-weight:7
 
 
 <script>
+// ============================================================
+//  BACKEND CONNECTION: paste your live Render URL below.
+//  Example: "https://oli-backend.onrender.com"  (no trailing slash needed, no /api/search)
+//  Local testing with the Flask server serving this page: use "" (empty string).
+// ============================================================
+const BACKEND_URL = "https://food-concierge-backend.onrender.com".replace(/\/+$/, "");
+
 const state={user:null,profile:{tastes:[],diet:[],family:[]}};
 const $=s=>document.querySelector(s), esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function go(id){const cur=document.querySelector('.view.on');const show=()=>{document.querySelectorAll('.view').forEach(v=>v.classList.remove('on','show'));const el=$('#'+id);el.classList.add('on');requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('show')));window.scrollTo(0,0);
@@ -189,14 +196,15 @@ async function render(query){
  box.innerHTML=`<div class="card p-8 text-center" style="color:var(--mute)"><p class="hd font-bold text-lg" style="color:var(--ink)">Oli is thinking…</p><p class="mt-1">Matching “${esc(q)}” to your taste profile</p></div>`;
  box.scrollIntoView({behavior:'smooth',block:'start'});
  try{
-  const res=await fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,cuisines:state.profile.tastes,diets:state.profile.diet,family:state.profile.family})});
+  if(BACKEND_URL.includes('PASTE_'))throw new Error('Backend URL not set. Paste your Render URL into BACKEND_URL near the top of the script in index.html.');
+  const res=await fetch(`${BACKEND_URL}/api/search`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,cuisines:state.profile.tastes,diets:state.profile.diet,family:state.profile.family})});
   let data={};try{data=await res.json()}catch(_){}
   if(id!==reqId)return;
   if(!res.ok)throw new Error(data.error||'Oli could not answer right now.');
   box.innerHTML=resultCard(data,q);
  }catch(err){
   if(id!==reqId)return;
-  const msg=err instanceof TypeError?'Could not reach the Oli server. Is python app.py running, and are you opening http://127.0.0.1:5000?':err.message;
+  const msg=err instanceof TypeError?'Could not reach the Oli server at '+(BACKEND_URL||'this site')+'. Render free instances sleep when idle and can take about a minute to wake, so try again shortly. If it keeps failing, check that ALLOWED_ORIGINS on Render includes this site\'s address.':err.message;
   box.innerHTML=`<div class="card p-8" role="alert"><p class="hd font-bold text-lg">Oli hit a problem</p><p class="mt-1" style="color:var(--mute)">${esc(msg)}</p></div>`;
  }finally{if(id===reqId)btn.disabled=false}
 }
