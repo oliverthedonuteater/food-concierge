@@ -25,14 +25,14 @@ if (configured) {
 }
 
 window.googleSignIn = async () => {
-  if (!configured) { window.oliAuthError("Firebase isn't configured yet. Paste your keys into firebaseConfig in this file. If you are a user and see this, please send an email to Oliverzhao17@gmail.com"); return; }
+  if (!configured) { window.oliAuthError("Firebase isn't configured yet. Paste your keys into firebaseConfig in this file."); return; }
   try {
     const result = await signInWithPopup(auth, provider);
     window.oliSetUser(result.user, true);
   } catch (err) {
     if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") return;
     window.oliAuthError(err.code === "auth/unauthorized-domain"
-      ? "This domain isn't authorised in Firebase. Add it under Authentication > Settings > Authorized domains. If you are a user and see this, please send an email to Oliverzhao17@gmail.com"
+      ? "This domain isn't authorised in Firebase. Add it under Authentication > Settings > Authorized domains."
       : "Sign-in failed (" + (err.code || err.message) + "). Please try again.");
   }
 };
@@ -88,7 +88,7 @@ details{border-bottom:1px solid var(--line)}summary{cursor:pointer;font-weight:7
  <section id="qa" style="background:var(--soft)"><div class="max-w-3xl mx-auto px-5 py-20"><h2 class="text-3xl md:text-4xl font-extrabold mb-6">Q&amp;A</h2>
   <div id="qaList"></div>
  </div></section>
- <footer class="py-8 text-center text-sm" style="color:var(--mute)">Oli prototype · simulated data</footer>
+ <footer class="py-8 text-center text-sm" style="color:var(--mute)">Oli prototype · AI-generated suggestions</footer>
 </main>
 
 <!-- PAGE 2 -->
@@ -157,110 +157,48 @@ function refreshProfileLine(){const p=state.profile,all=[...p.tastes,...p.diet.f
 // ---------- Q&A (short + long answers) ----------
 const QA=[
 ['Do I need to download an app?','No. Oli works in your browser on any phone or computer.','Oli is a plain web page built with HTML, CSS and JavaScript, so nothing is installed from an app store. It runs in any modern browser (Chrome, Safari, Edge, Firefox) and you always load the latest version when you open the site. You can pin it to your home screen like an app. An internet connection is needed for Google sign-in and for opening the source links.'],
-['How does Oli use my taste profile?','Every search is cross-checked against your saved tastes, dietary profile and family needs, so results and dishes fit you.','Your profile is a small structured object: tastes, dietary needs and family requirements. On each search Oli reads the keywords you typed and merges them with that profile. Dietary needs act as hard filters (Vegetarian removes meat dishes, Halal removes pork dishes). Tastes add ranking weight and extra dishes. Family needs such as Kid-Friendly, High Chairs and Quiet Space are written into the review summary. If your words and your profile conflict, what you typed wins. In this prototype the profile lives in browser memory only and is cleared on refresh or sign-out.'],
-['Where do the ratings come from?','Oli combines scores from several review platforms into one number out of 5. In this prototype the figures are simulated.','The intended design pulls the score from each platform (for example Google Maps, Yelp and TripAdvisor), converts them all to a 5-star scale, then takes a weighted average. Weights reflect review volume and recency, so 4.5 stars from 2,000 recent reviews counts for more than 4.8 from 12 old ones. The single combined number and the review count are shown on every card. In this prototype the ratings are generated for demonstration, while the Sources links open real searches on those platforms.'],
-['Can I search for any restaurant name?','Yes. Type any name and Oli builds a tailored result for it.','If your text has no recognised mood or category keywords and is four words or fewer, Oli treats it as a venue name and builds the first result around it. If it contains keywords such as "spicy", "romantic" or "kids", Oli returns category-style picks instead. In this prototype the venue details are generated, so use the Sources links to check the real listing for any place.'],
-['How is my data kept safe?','Sign-in is handled by Google through Firebase, so Oli never sees or stores your password.','Authentication uses Firebase Authentication with a Google popup. Oli receives only your name, email, photo and a unique ID, never your Google password. Your taste profile is held in browser memory in this prototype and is not sent to any server. A production version would store it in a database with per-user security rules, encrypt it in transit (HTTPS) and at rest, and include a "delete my data" option. Signing out clears the session and the profile from the page.'],
-['How accurate are Oli\'s reviews?','Oli\'s summaries reflect patterns across many reviews, but they can be wrong, so treat them as a guide and check the linked sources.','A summary blends three things: the combined rating, themes that recur across reviews, and what you asked for. It has limits. Reviews lag behind reality when menus or owners change, small samples can mislead, and people who post reviews tend to be unusually happy or unhappy. Oli therefore shows the review count and links the original platforms so you can verify. In this prototype the numbers and summaries are simulated for demonstration.'],
-['How does Oli filter out fake reviews?','Oli looks for unnatural patterns, such as sudden bursts of five-star reviews, and gives those less weight.','The planned approach scores each review on trust signals: bursts of reviews in a short window, accounts with a single review or reviews across unrelated cities, near-duplicate wording, extreme ratings with no detail, and text that does not match the star score. Suspicious reviews are down-weighted rather than deleted, and the platforms\' own moderation applies first. No filter is perfect, so a few fakes can slip through. This prototype does not process real reviews, so the filtering is a design description only.']];
+['How does Oli use my taste profile?','Every search is cross-checked against your saved tastes, dietary profile and family needs, so results and dishes fit you.','Your profile is a small structured object: tastes, dietary needs and family requirements. On each search Oli reads the keywords you typed and merges them with that profile. Dietary needs act as hard filters (Vegetarian removes meat dishes, Halal removes pork dishes). Tastes add ranking weight and extra dishes. Family needs such as Kid-Friendly, High Chairs and Quiet Space are written into the review summary. If your words and your profile conflict, what you typed wins. The profile is kept in browser memory and cleared on refresh or sign-out; it is sent with each search so the AI can personalise the answer.'],
+['Where do the ratings come from?','Oli\'s AI estimates one combined score out of 5 for each venue. It is a model-generated estimate, not a live average of platform ratings.','Oli does not call Google, Yelp or TripAdvisor directly. A language model is asked to produce a plausible combined rating from its general knowledge and your request, so the number can be wrong, and when you search by mood the venue itself may be invented. The Sources links open real searches on those platforms so you can check actual ratings and review counts. A production version would pull each platform\'s official rating through its API, convert it to a 5-star scale and weight it by review volume and recency.'],
+['Can I search for any restaurant name?','Yes. Type any name and Oli builds a tailored result for it.','Your text is sent to the AI together with your taste profile. If you type a venue name, Oli uses that name; if you describe a mood or a need, it suggests a venue that fits. The AI has no live map or database connection, so details such as distance and dishes are generated and a suggested venue may not exist. Use the Sources links to confirm the real listing before you go.'],
+['How is my data kept safe?','Sign-in is handled by Google through Firebase, so Oli never sees or stores your password.','Authentication uses Firebase Authentication with a Google popup, and Oli receives only your name, email, photo and a unique ID. When you search, your query and taste profile are sent from your browser to this app\'s server, which forwards them to the Groq API to generate the answer. The API key stays on the server and this version does not store your searches. Groq\'s own data policy applies to what it receives, so avoid typing anything you would not want processed by a third-party AI service. Your profile is cleared from the page on refresh or sign-out.'],
+['How accurate are Oli\'s reviews?','Oli\'s summaries are AI-generated guidance, so they can be wrong. Check the linked sources before you decide.','The summary is written by a language model from your request and profile, not computed from live reviews. It can miss recent changes such as new owners or menus, and it may state wrong details with confidence. Ratings and distances are estimates. Treat it like a well-read friend\'s suggestion: good for ideas and for matching your dietary and family needs, but confirm opening hours, menu items and allergen information with the venue, especially for allergies.'],
+['How does Oli filter out fake reviews?','In this version Oli does not read individual reviews, so it cannot filter fake ones itself. The platforms run their own moderation.','The summary comes from a language model, not from a live feed of reviews, so no review-level filtering happens here. A production version could score each review on trust signals (bursts of five-star ratings in a short window, single-review accounts, near-duplicate wording, ratings that do not match the text) and down-weight suspicious ones before summarising. Until then, use the Sources links to check each platform\'s moderated reviews, and look for consistent themes across many recent ones.']];
 $('#qaList').innerHTML=QA.map(([q,sh,lg])=>`<details><summary>${q}</summary><div class="pb-5" style="color:var(--mute)"><p><b style="color:var(--ink)">Short Answer:</b> ${sh}</p><div class="mt-3 rounded-xl p-4 border-l-4 text-[.95rem] leading-relaxed" style="background:var(--card);border-color:var(--g)"><p><b style="color:var(--ink)">Long Answer:</b> ${lg}</p></div></div></details>`).join('');
 
 // categories
 const CATS=[['🍽️','Dining','Best dinner spot for tonight'],['🏨','Hotels','Family friendly hotel with a pool'],['🛍️','Shopping Centres','Shopping centre with a great food court'],['🍸','Bars','Relaxed bar with great cocktails'],['🎟️','Activities','Fun weekend activity with good food nearby'],['🔥','Trending Nearby','What is trending nearby right now']];
 $('#cats').innerHTML=CATS.map((c,i)=>`<button type="button" data-p="${c[2]}" class="cat card p-6 text-left ${i===5?'!border-0':''}" ${i===5?'style="background:var(--g)"':''}><div class="text-3xl mb-3">${c[0]}</div><div class="hd font-bold text-lg" ${i===5?'style="color:var(--gt)"':''}>${c[1]}</div></button>`).join('');
-$('#cats').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;$('#q').value=b.dataset.p;$('#q').focus()});
+$('#cats').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;$('#q').value=b.dataset.p;render(b.dataset.p)});
 
-// ---------- OLI engine ----------
-const MEAT=/lamb|chicken|beef|rib|prawn|scallop|fish|oyster|steak|burger|slider|pork|tuna|salmon|sushi|calamari|bacon|brisket|octopus|duck/i, PORK=/pork|bacon|wine/i;
-const T={
- spicy:{kw:['spicy','hot','chilli','chili','fiery','heat','curry','sichuan','kick'],say:'the heat levels, with plenty of dishes that bring a proper kick',names:['Ember & Chilli','Fire Lane Kitchen','Smoke Pepper Co.'],dishes:['Chilli-crusted lamb ribs','Sichuan dan dan noodles','Fiery paneer tikka','Jalapeño popper tacos','Nashville hot chicken','Mapo tofu']},
- kids:{kw:['kid','kids','child','children','family','toddler','baby'],say:'how welcoming the staff are to families, with mild options and fast service',names:['Little Fork','Sunny Table','Happy Spoon Eatery'],dishes:['Mini margherita pizzas','Cheesy mac bites','Chicken tenders and chips','Build-your-own sliders','Fruit and yoghurt cups']},
- romantic:{kw:['romantic','date','anniversary','candle','intimate','quiet','cosy','cozy'],say:'the soft lighting and well-spaced tables that make conversation easy',names:['Velvet Fig','The Candlelight Room','Olive & Ember'],dishes:['Seared scallops with citrus butter','Truffle mushroom risotto','Slow-braised short rib','Burrata with roasted figs','Molten chocolate for two']},
- sweet:{kw:['sweet','dessert','cake','ice','chocolate','donut','pastry','gelato'],say:'the desserts, which are consistently named the highlight',names:['Sugar & Spoon','The Dessert Atelier','Honeycomb Bakery'],dishes:['Salted caramel churros','Pistachio gelato flight','Warm sticky date pudding','Basque cheesecake','Mango sticky rice']},
- veg:{kw:['vegetarian','vegan','veggie','plant'],say:'the creative plant-based menu that even meat-eaters rave about',names:['Green Table','Root & Leaf','The Veggie Patch'],dishes:['Roasted cauliflower with tahini','Wild mushroom bao','Halloumi and zucchini fritters','Chickpea and spinach curry','Smoky eggplant dip']},
- halal:{kw:['halal'],say:'the fully halal-certified kitchen',names:['Al Noor Kitchen','Saffron House','Zaytoun Grill'],dishes:['Lamb mandi with saffron rice','Chicken shawarma plate','Hummus with warm flatbread','Beef kofta skewers','Kunafa with pistachio']},
- seafood:{kw:['seafood','fish','sushi','oyster','prawn','japanese'],say:'the freshness of the catch, delivered daily',names:['Harbour & Tide','Blue Fin Kitchen','The Salt Pier'],dishes:['Fresh oysters with mignonette','Salt and pepper calamari','Salmon sashimi plate','Garlic butter prawns','Miso-glazed barramundi']},
- italian:{kw:['italian','pizza','pasta'],say:'the hand-made pasta and wood-fired pizza',names:['Nonna Rosa','Forno & Fig','Trattoria Bella'],dishes:['Wood-fired margherita','Cacio e pepe','Gnocchi al pomodoro','Tiramisu','Arancini with mozzarella']},
- coffee:{kw:['coffee','cafe','brunch','breakfast'],say:'the specialty coffee and all-day brunch menu',names:['Daily Grind Social','Sunday Bean','Crumb & Co.'],dishes:['Smashed avocado on sourdough','Ricotta hotcakes','Shakshuka with feta','Flat white and almond croissant']},
- bbq:{kw:['bbq','barbecue','grill','steak','burger','savory','savoury'],say:'the slow-smoked meats and big, hearty portions',names:['Cinder & Salt','Harbour Smokehouse','The Grill Yard'],dishes:['14-hour smoked brisket','Dry-aged cheeseburger','Charred corn with chipotle butter','Smoked pork ribs','Loaded sweet potato fries']},
- cheap:{kw:['cheap','budget','affordable','deal','value','under'],say:'generous portions at fair prices',names:['The Good Plate','Fork & Value','Neighbourhood Kitchen'],dishes:['Lunch combo with a drink','Loaded rice bowl','Wood-fired pizza slice deal','Dumpling basket for sharing']},
- adventure:{kw:['adventurous','unusual','weird','new','surprise'],say:'the inventive, ever-changing tasting menu',names:['Curio Kitchen','The Wild Spoon','Odd Fellow Dining'],dishes:['Chef\'s surprise tasting plate','Miso caramel octopus','Fermented chilli wings','Black garlic gnocchi','Smoked eel toast']}};
-const TYPES={hotel:{kw:['hotel','stay','resort','suite','accommodation'],suffix:['Hotel','Suites','Lodge'],note:'the on-site restaurant',dishes:['Breakfast buffet with live omelette station','Poolside club sandwich','Rooftop grazing platter','Room-service pancakes']},
- mall:{kw:['shopping','mall','centre','center','shops'],suffix:['Central','Arcade','Quarter'],note:'the food court',dishes:['Gourmet dumplings from the food hall','Loaded ramen bowl','Artisan gelato cone','Bubble tea and a bao bun']},
- bar:{kw:['bar','cocktail','pub','drinks','beer'],suffix:['Bar','Taproom','Cocktail Club'],note:'the bar menu',dishes:['Truffle fries','Smoky old fashioned','Sticky chicken wings','Cheese and charcuterie board']},
- act:{kw:['activity','activities','weekend','tour','fun','things'],suffix:['Adventure Park','Experience','Collective'],note:'the café nearby',dishes:['Picnic hamper for two','Post-activity burger and shake','Fresh juice and fruit cups','Wood-fired pizza to share']}};
-const ADJ=['Golden','Corner','Harbour','Laneway','Little','Rosewood','Sunset','Copper'];
-const TASTE_MAP={Spicy:'spicy',Savory:'bbq',Sweet:'sweet',Adventurous:'adventure'};
-const hash=s=>{let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0};
-const rng=seed=>()=>{seed=(seed+0x6D2B79F5)|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
-const words=q=>q.toLowerCase().match(/[a-z']+/g)||[];
-const hit=(ws,kws)=>ws.some(w=>kws.some(k=>w.startsWith(k)));
-const list=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1];
-const title=s=>s.replace(/\b\w/g,c=>c.toUpperCase());
-
-function oli(query,profile,ordinal){
- const R=rng(hash(query.toLowerCase()+ordinal)), pick=a=>a[Math.floor(R()*a.length)], shuffle=a=>a.map(v=>[R(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
- const ws=words(query), qThemes=Object.keys(T).filter(k=>hit(ws,T[k].kw));
- const type=Object.keys(TYPES).find(k=>hit(ws,TYPES[k].kw)), trending=/trend|popular|right now|nearby/.test(query.toLowerCase());
- const diet=profile.diet.filter(d=>d!=='None'), vegProfile=diet.includes('Vegetarian')||qThemes.includes('veg'), halal=diet.includes('Halal')||qThemes.includes('halal');
- const pThemes=profile.tastes.map(t=>TASTE_MAP[t]).filter(t=>t&&!qThemes.includes(t));
- const themes=[...qThemes,...pThemes];
- const looksNamed=!qThemes.length&&!type&&ws.length>0&&ws.length<=4&&!trending;
- // name
- const lead=themes[0]&&T[themes[0]];
- let name; if(ordinal===0&&looksNamed)name=title(query.trim());
- else if(type)name=pick(ADJ)+' '+pick(TYPES[type].suffix);
- else name=lead&&R()>.3?pick(lead.names):pick(ADJ)+' '+pick(['Kitchen','Table','Bistro','Eatery']);
- // dishes
- let pool=type?[...TYPES[type].dishes]:[];
- shuffle(themes).forEach(k=>pool.push(...shuffle(T[k].dishes).slice(0,3)));
- if(!pool.length)pool=shuffle(['Chef\'s special of the day','Seasonal market salad','Wood-fired flatbread','Slow-roasted vegetables','House-made dessert']);
- if(vegProfile)pool=pool.filter(d=>!MEAT.test(d));
- if(halal)pool=pool.filter(d=>!PORK.test(d));
- if(vegProfile&&pool.length<3)pool.push(...shuffle(T.veg.dishes));
- let dishes=[...new Set(pool)].slice(0,4);
- if(profile.family.includes('Kid-Friendly')&&!qThemes.includes('kids'))dishes[dishes.length-1]='Kids\' pick: '+pick(T.kids.dishes.filter(d=>!vegProfile||!MEAT.test(d)));
- if(profile.tastes.includes('Sweet')&&!qThemes.includes('sweet'))dishes.push(pick(T.sweet.dishes));
- dishes=[...new Set(dishes)];
- // rating + distance
- const rating=Math.round((3.9+R()*1.0)*10)/10, dist=(0.3+R()*2.4+ordinal*1.3).toFixed(1), n=Math.floor(180+R()*2400);
- // sources (links open real searches on each platform)
- const term=(ordinal===0&&looksNamed)?name:(query.trim()||name), e=encodeURIComponent(term);
- const SRC={gm:['Google Maps','google.com',`https://www.google.com/maps/search/?api=1&query=${e}`],yelp:['Yelp','yelp.com',`https://www.yelp.com/search?find_desc=${e}`],ta:['TripAdvisor','tripadvisor.com',`https://www.tripadvisor.com/Search?q=${e}`],bk:['Booking.com','booking.com',`https://www.booking.com/searchresults.html?ss=${e}`],ut:['Untappd','untappd.com',`https://untappd.com/search?q=${e}`],vi:['Viator','viator.com',`https://www.viator.com/searchResults/all?text=${e}`],rd:['Reddit','reddit.com',`https://www.reddit.com/search/?q=${e}`]};
- const src=(type==='hotel'?['gm','bk','ta']:type==='bar'?['gm','yelp','ut']:type==='act'?['gm','ta','vi']:trending?['gm','yelp','rd']:['gm','yelp','ta']).map(k=>SRC[k]);
- // summary
- const kwText=query.trim()?`“${query.trim()}”`:'your request';
- const parts=[`Oli scanned ${n.toLocaleString()} reviews across ${list(src.map(x=>x[0]))} for ${kwText}.`];
- if(type)parts.push(`Guests mention ${TYPES[type].note} often, and rate it above the local average.`);
- if(lead)parts.push(`Reviewers keep coming back to ${lead.say}.`);
- else parts.push(pick(['Reviewers praise the friendly service and consistent quality.','Most reviews highlight good value and a relaxed atmosphere.']));
- if(looksNamed&&ordinal===0)parts.push(`Reviews for ${name} are mostly recent, with a steady trend of ${rating>=4.4?'strong':'solid'} feedback.`);
- const fit=[];
- if(profile.tastes.length)fit.push(`you enjoy ${list(profile.tastes.map(t=>t.toLowerCase()))} flavours`);
- if(diet.length)fit.push(`your ${list(diet.map(d=>d.toLowerCase()))} requirement is covered with clearly marked options`);
- if(profile.family.includes('Kid-Friendly'))fit.push('it welcomes kids');
- if(profile.family.includes('High Chairs'))fit.push('high chairs are available');
- if(profile.family.includes('Quiet Space'))fit.push('there is a calmer area away from the noise');
- if(fit.length)parts.push('It suits your taste profile because '+list(fit)+'.');
- if(trending)parts.push(`It is trending nearby, with saves up ${Math.floor(20+R()*90)}% this week.`);
- return{name,rating,dist,summary:parts.join(' '),dishes,type,src};
-}
 const stars=r=>`<span class="stars text-xl" aria-hidden="true">★★★★★<i style="width:${r/5*100}%">★★★★★</i></span>`;
-function render(query){
- const q=query.trim(),box=$('#results');
- box.innerHTML=`<div class="card p-8 text-center" style="color:var(--mute)"><p class="hd font-bold text-lg" style="color:var(--ink)">Oli is on it…</p><p id="tick" class="mt-1">Reading reviews across the web</p></div>`;
- const steps=['Searching Google Maps, Yelp and TripAdvisor','Checking your taste profile','Writing your summary'];let i=0;
- const t=setInterval(()=>{const el=$('#tick');if(el&&i<steps.length)el.textContent=steps[i++]},350);
- setTimeout(()=>{clearInterval(t);const out=[0,1,2].map(i=>oli(q,state.profile,i)).sort((a,b)=>a.dist-b.dist||0);
-  const first=out.find((_,i)=>true);
-  box.innerHTML=`<p class="mb-5 text-lg"><b class="hd">Oli:</b> Here are my top picks for ${q?'“'+esc(q)+'”':'you'}.</p>`+out.map((r,i)=>`
-  <article class="card p-6 md:p-8 mb-5 ${i===0?'border-2':''}" style="${i===0?'border-color:var(--g)':''}">
-   <h2 class="text-2xl md:text-3xl font-extrabold">${esc(r.name)}</h2>
-   <div class="flex flex-wrap items-center gap-x-5 gap-y-1 mt-2" style="color:var(--mute)">${stars(r.rating)}<span><b style="color:var(--ink)">${r.rating}</b> / 5 combined</span><span>${r.dist} km away</span></div>
-   <div class="mt-5 rounded-2xl p-5" style="background:var(--soft)"><h3 class="font-bold mb-1" style="color:var(--gd)">Oli's review summary</h3><p>${esc(r.summary)}</p></div>
-   <h3 class="font-bold mt-5 mb-2">Best dishes for you</h3><ul class="list-disc pl-6 space-y-1">${r.dishes.map(d=>`<li>${esc(d)}</li>`).join('')}</ul>
-   <div class="mt-6 pt-4 border-t text-sm flex flex-wrap items-center gap-x-2 gap-y-1" style="border-color:var(--line);color:var(--mute)"><span class="font-bold" style="color:var(--ink)">Sources gathered from:</span>${r.src.map(x=>`<a href="${x[2]}" target="_blank" rel="noopener noreferrer" class="font-medium underline underline-offset-2 decoration-2" style="color:var(--gd);text-decoration-color:var(--g)">${x[0]} (${x[1]})</a>`).join('<span aria-hidden="true">|</span>')}</div></article>`).join('');
-  box.scrollIntoView({behavior:'smooth',block:'start'})},1150);
+const SRC_LINK={'google.com':['Google Maps',e=>`https://www.google.com/maps/search/?api=1&query=${e}`],'maps.google.com':['Google Maps',e=>`https://www.google.com/maps/search/?api=1&query=${e}`],'yelp.com':['Yelp',e=>`https://www.yelp.com/search?find_desc=${e}`],'tripadvisor.com':['TripAdvisor',e=>`https://www.tripadvisor.com/Search?q=${e}`],'booking.com':['Booking.com',e=>`https://www.booking.com/searchresults.html?ss=${e}`],'opentable.com':['OpenTable',e=>`https://www.opentable.com/s?term=${e}`],'reddit.com':['Reddit',e=>`https://www.reddit.com/search/?q=${e}`]};
+function srcLink(d,name){const k=SRC_LINK[d],e=encodeURIComponent(name);return k?[k[0],d,k[1](e)]:[d.split('.')[0].replace(/^./,c=>c.toUpperCase()),d,'https://'+encodeURIComponent(d).replace(/%2E/g,'.')]}
+function resultCard(r,q){
+ return `<p class="mb-5 text-lg"><b class="hd">Oli:</b> Here is my pick for “${esc(q)}”.</p>
+ <article class="card p-6 md:p-8 mb-5 border-2" style="border-color:var(--g)">
+  <h2 class="text-2xl md:text-3xl font-extrabold">${esc(r.name)}</h2>
+  <div class="flex flex-wrap items-center gap-x-5 gap-y-1 mt-2" style="color:var(--mute)">${stars(r.rating)}<span><b style="color:var(--ink)">${r.rating}</b> / 5 combined</span><span>${esc(r.distance)}</span></div>
+  <div class="mt-5 rounded-2xl p-5" style="background:var(--soft)"><h3 class="font-bold mb-2" style="color:var(--gd)">Oli's AI review summary</h3><ul class="list-disc pl-5 space-y-1.5">${r.summary.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+  <h3 class="font-bold mt-5 mb-2">Best dishes for you</h3><ul class="list-disc pl-6 space-y-1">${r.dishes.map(d=>`<li>${esc(d)}</li>`).join('')}</ul>
+  <div class="mt-6 pt-4 border-t text-sm flex flex-wrap items-center gap-x-2 gap-y-1" style="border-color:var(--line);color:var(--mute)"><span class="font-bold" style="color:var(--ink)">Sources gathered from:</span>${r.sources.map(d=>srcLink(d,r.name)).map(x=>`<a href="${x[2]}" target="_blank" rel="noopener noreferrer" class="font-medium underline underline-offset-2 decoration-2" style="color:var(--gd);text-decoration-color:var(--g)">${esc(x[0])} (${esc(x[1])})</a>`).join('<span aria-hidden="true">|</span>')}</div>
+ </article><p class="text-sm" style="color:var(--mute)">AI-generated suggestion. Ratings and distances are estimates, so confirm details with the venue.</p>`}
+let reqId=0;
+async function render(query){
+ const q=query.trim();if(!q)return;const id=++reqId,box=$('#results'),btn=$('#searchForm button');
+ btn.disabled=true;
+ box.innerHTML=`<div class="card p-8 text-center" style="color:var(--mute)"><p class="hd font-bold text-lg" style="color:var(--ink)">Oli is thinking…</p><p class="mt-1">Matching “${esc(q)}” to your taste profile</p></div>`;
+ box.scrollIntoView({behavior:'smooth',block:'start'});
+ try{
+  const res=await fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,cuisines:state.profile.tastes,diets:state.profile.diet,family:state.profile.family})});
+  let data={};try{data=await res.json()}catch(_){}
+  if(id!==reqId)return;
+  if(!res.ok)throw new Error(data.error||'Oli could not answer right now.');
+  box.innerHTML=resultCard(data,q);
+ }catch(err){
+  if(id!==reqId)return;
+  const msg=err instanceof TypeError?'Could not reach the Oli server. Is python app.py running, and are you opening http://127.0.0.1:5000?':err.message;
+  box.innerHTML=`<div class="card p-8" role="alert"><p class="hd font-bold text-lg">Oli hit a problem</p><p class="mt-1" style="color:var(--mute)">${esc(msg)}</p></div>`;
+ }finally{if(id===reqId)btn.disabled=false}
 }
 $('#searchForm').addEventListener('submit',e=>{e.preventDefault();render($('#q').value)});
 go('landing');
